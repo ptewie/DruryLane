@@ -1334,10 +1334,11 @@ MonoBehaviour:
   - {fileID: 1366301094}
   - {fileID: 445702421}
   - {fileID: 1088308400}
-  wasHit: 0
-  spawntimer: 0
+  scoreText: {fileID: 1487356915}
+  spawnTimer: 0
   timeBetweenSpawns: 3
-  speedMultiplier: 0
+  spawnSpeedMultiplier: 0
+  wasHit: 0
 --- !u!1 &935232496
 GameObject:
   m_ObjectHideFlags: 0
@@ -2146,7 +2147,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Score: XXX'
+  m_text: 'Score: 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6349125394e6868418eeb271a04e6e44, type: 2}
   m_sharedMaterial: {fileID: 133868727499663585, guid: 6349125394e6868418eeb271a04e6e44, type: 2}

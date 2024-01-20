@@ -19,7 +19,7 @@ public class Hazard : MonoBehaviour
     void Update()
     {
         // set velocity of rigid body (for throwing, at you)
-        rb.velocity = Vector2.left * (speed + Manager.speedMultiplier);
+        rb.velocity = Vector2.left * (speed + Manager.spawnSpeedMultiplier);
         
     }
 
