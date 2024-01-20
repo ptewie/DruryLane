@@ -1,15 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 
-public enum GameState {TitleState, CreditsState, GameplayState, GameOverState, VictoryState, }; //Game States
+public enum GameState { TitleState, CreditsState, GameplayState, GameOverState, VictoryState }; //Game States
 
-public class GameStateChangedEvent : UnityEvent<GameState, GameState>
-{
-
-}
+public class GameStateChangedEvent : UnityEvent<GameState, GameState> { }
 
 public class GameManager : MonoBehaviour
 {
@@ -24,14 +20,17 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
 
     public float spawnTimer = 0f; // Time in seconds 
-    public float timeBetweenSpawns; 
+    public float timeBetweenSpawns;
     public float spawnSpeedMultiplier;
     private float scoreTimer = 0f;
 
     private int score = 0;
     //This bool needs to stay public because this is what all scripts in the game use to check if the player was hit.
     //It's awful I know but I don't have time to rewrite that logic rn
-    public bool wasHit = false; 
+    public bool wasHit = false;
+
+    private Coroutine spawnHazardsCoroutine;
+    private Coroutine hitCheckCoroutine;
 
     void Awake()
     {
@@ -48,13 +47,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(SpawnHazards());
-        StartCoroutine(HitCheck());
+        ChangeGameState(GameState.TitleState);
     }
 
     void Update()
     {
-        if (!wasHit)
+        if (currentGameState == GameState.GameplayState && !wasHit)
         {
             // Increase hazard speed by 0.1 every frame draw. 
             // Yes, this will eventually make them so fast it's impossible to dodge. I'll deal with that later.
@@ -74,7 +72,7 @@ public class GameManager : MonoBehaviour
             // Increase score
             score += 1;
             // Reset the timer
-            scoreTimer = 0f; 
+            scoreTimer = 0f;
 
             UpdateScoreText();
         }
@@ -85,6 +83,29 @@ public class GameManager : MonoBehaviour
         if (scoreText != null)
         {
             scoreText.text = "Score: " + score;
+        }
+    }
+
+    public void ChangeGameState(GameState state)
+    {
+        previousGameState = currentGameState;
+        currentGameState = state;
+        OnGameStateChanged.Invoke(previousGameState, currentGameState);
+
+        // Start or stop coroutines based on the current game state
+        if (currentGameState == GameState.GameplayState)
+        {
+            // Start coroutines only if the game state is GameplayState
+            spawnHazardsCoroutine = StartCoroutine(SpawnHazards());
+            hitCheckCoroutine = StartCoroutine(HitCheck());
+        }
+        else
+        {
+            // Stop coroutines if the game state is not GameplayState
+            if (spawnHazardsCoroutine != null)
+                StopCoroutine(spawnHazardsCoroutine);
+            if (hitCheckCoroutine != null)
+                StopCoroutine(hitCheckCoroutine);
         }
     }
 
@@ -134,12 +155,5 @@ public class GameManager : MonoBehaviour
         score = Mathf.Max(0, score - amount);
         // Update GUI
         UpdateScoreText();
-    }
-
-    public void ChangeGameState(GameState state)
-    {
-        previousGameState = currentGameState;
-        currentGameState = state;
-        OnGameStateChanged.Invoke(previousGameState, currentGameState);
     }
 }
