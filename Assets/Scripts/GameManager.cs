@@ -15,6 +15,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public GameState currentGameState;
+    private GameState previousGameState;
+    public GameStateChangedEvent OnGameStateChanged = new GameStateChangedEvent();
+
     public GameObject spawnObject;
     public GameObject[] spawnPoints;
     public TextMeshProUGUI scoreText;
@@ -130,5 +134,12 @@ public class GameManager : MonoBehaviour
         score = Mathf.Max(0, score - amount);
         // Update GUI
         UpdateScoreText();
+    }
+
+    public void ChangeGameState(GameState state)
+    {
+        previousGameState = currentGameState;
+        currentGameState = state;
+        OnGameStateChanged.Invoke(previousGameState, currentGameState);
     }
 }
