@@ -21,18 +21,18 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Incremntaily increase hazard speeds by 0.1 every frame draw 
-        // Yes, this will eventually make the obsticles so fast it's impossible to dodge. i'll cross that bridge when i get to it
+        // Check if player has been hit by anything
+        HitCheck();
 
-        // Make sure wasHit is false
         if (wasHit == false)
         {
+            // Increase hazard speed by 0.1 every frame draw. 
+            // Yes, this will eventually make them so fast it's impossible to dodge. I'll deal with that later.
             speedMultiplier += Time.deltaTime * 0.1f;
         }
+
         // Spawn hazards
         SpawnHazards();
-
-        // Check if player has been hit
 
 
 
@@ -62,7 +62,8 @@ public class GameManager : MonoBehaviour
     {
         if(wasHit == true)
         {
-            // decrement the speed multiplyer
+            Debug.Log("Hit check true!");
+            // When the player is hit, decrement the speed variable. 
             speedMultiplier = 0f;
 
             //TO DO: Punish player in some way? Health, lose score, i dunno monsters?
