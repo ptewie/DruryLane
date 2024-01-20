@@ -1,10 +1,20 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using TMPro;
+
+public enum GameState {TitleState, CreditsState, GameplayState, GameOverState, VictoryState, }; //Game States
+
+public class GameStateChangedEvent : UnityEvent<GameState, GameState>
+{
+
+}
 
 public class GameManager : MonoBehaviour
 {
-    // Hazard Spawning Variables
+    public static GameManager Instance;
+
     public GameObject spawnObject;
     public GameObject[] spawnPoints;
     public TextMeshProUGUI scoreText;
@@ -12,18 +22,30 @@ public class GameManager : MonoBehaviour
     public float spawnTimer = 0f; // Time in seconds 
     public float timeBetweenSpawns; 
     public float spawnSpeedMultiplier;
-
     private float scoreTimer = 0f;
+
     private int score = 0;
-    
     //This bool needs to stay public because this is what all scripts in the game use to check if the player was hit.
     //It's awful I know but I don't have time to rewrite that logic rn
     public bool wasHit = false; 
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
-        StartCoroutine(SpawnHazardsCoroutine());
-        StartCoroutine(HitCheckCoroutine());
+        StartCoroutine(SpawnHazards());
+        StartCoroutine(HitCheck());
     }
 
     void Update()
@@ -62,9 +84,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnHazardsCoroutine()
+    IEnumerator SpawnHazards()
     {
-        while (true)
+        while (true) //Run indefinitely with a while (true) loop
         {
             spawnTimer += Time.deltaTime;
             if (spawnTimer > timeBetweenSpawns)
@@ -79,11 +101,11 @@ public class GameManager : MonoBehaviour
                 Instantiate(spawnObject, spawnPoints[random].transform.position, Quaternion.identity);
             }
 
-            yield return null;
+            yield return null; //Give control to the unity engine
         }
     }
 
-    IEnumerator HitCheckCoroutine()
+    IEnumerator HitCheck()
     {
         while (true)
         {
