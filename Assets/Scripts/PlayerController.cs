@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public float jump; 
     private Rigidbody2D rb;
-    private bool isGrounded; 
+    public bool isGrounded; 
 
     void Awake()
     {
@@ -40,6 +40,10 @@ public class PlayerController : MonoBehaviour
         {
             //if it does? bool is true
             isGrounded = true;
+        }
+        if (other.gameObject.CompareTag("Hazard"))
+        {
+            Debug.Log("Owie");
         }
     }
 
