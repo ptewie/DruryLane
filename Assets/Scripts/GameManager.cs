@@ -22,25 +22,51 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // Incremntaily increase hazard speeds by 0.1 every frame draw 
-        // Yes, this will eventually be impossible. i'll cross that bridge when i get to it
-        speedMultiplier += Time.deltaTime * 0.1f;
+        // Yes, this will eventually make the obsticles so fast it's impossible to dodge. i'll cross that bridge when i get to it
 
+        // Make sure wasHit is false
+        if (wasHit == false)
+        {
+            speedMultiplier += Time.deltaTime * 0.1f;
+        }
+        // Spawn hazards
+        SpawnHazards();
+
+        // Check if player has been hit
+
+
+
+
+    }
+
+    public void SpawnHazards()
+    {
         // NOTE: turn this into it's own function maybe? Seems unorganized to keep it in Update(); 
         spawntimer += Time.deltaTime;
 
-        if(spawntimer > timeBetweenSpawns)
+        if (spawntimer > timeBetweenSpawns)
         {
             // reset spawn timer
-            spawntimer = 0;
+            spawntimer = 0f;
 
             // set random and then choose a spawnPoint to spawn the hazard from
             int random = Random.Range(0, 3);
 
             // Spawn em'
-            Instantiate(spawnObject, spawnPoints[random].transform.position, Quaternion.identity); 
+            Instantiate(spawnObject, spawnPoints[random].transform.position, Quaternion.identity);
 
         }
-        
+    }
 
+    public void HitCheck()
+    {
+        if(wasHit == true)
+        {
+            // decrement the speed multiplyer
+            speedMultiplier = 0f;
+
+            //TO DO: Punish player in some way? Health, lose score, i dunno monsters?
+              
+        }
     }
 }

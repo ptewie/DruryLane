@@ -28,12 +28,12 @@ public class Hazard : MonoBehaviour
         // if you end up colliding with the player
         if (other.gameObject.CompareTag("Player"))
         {
-            //Destroy the game object
-            Destroy(this);
-
             //Let the game manager know that the hit happened
-            // TO DO: NOT FUCKING THIS. OH MY GOD. 
+            // TO DO: NOT FUCKING THIS. THIS GOES BETWEEN LIKE...... 3 SCRIPTS!!!!!
             Manager.wasHit = true;
+
+            // 
+            Destroy(this.gameObject);
             
             
         }
