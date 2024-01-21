@@ -15,7 +15,9 @@ public class GameManager : MonoBehaviour
     private GameState previousGameState;
     public GameStateChangedEvent OnGameStateChanged = new GameStateChangedEvent();
 
-    public GameObject spawnObject;
+    public GameObject spawnObject1;
+    public GameObject spawnObject2;
+    public GameObject spawnObject3;
     public GameObject[] spawnPoints;
     public TextMeshProUGUI scoreText;
 
@@ -47,7 +49,10 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        ChangeGameState(GameState.TitleState);
+        // On load, the game state is the title state
+        // game state is set to gameplay state for debugging resons rn
+        ChangeGameState(GameState.GameplayState);
+
     }
 
     void Update()
@@ -95,13 +100,13 @@ public class GameManager : MonoBehaviour
         // Start or stop coroutines based on the current game state
         if (currentGameState == GameState.GameplayState)
         {
-            // Start coroutines only if the game state is GameplayState
+            // Only hitCheck and spawnhazards if we're in GameplayState
             spawnHazardsCoroutine = StartCoroutine(SpawnHazards());
             hitCheckCoroutine = StartCoroutine(HitCheck());
         }
         else
         {
-            // Stop coroutines if the game state is not GameplayState
+            // Stop coroutines if we're not in GameplayState
             if (spawnHazardsCoroutine != null)
                 StopCoroutine(spawnHazardsCoroutine);
             if (hitCheckCoroutine != null)
@@ -109,27 +114,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnHazards()
+   IEnumerator SpawnHazards()
+{
+    // apply hazards to each spawnpoint
+    GameObject[] hazardArray = new GameObject[] {spawnObject1, spawnObject2, spawnObject3}; 
+
+    // LAMBDA expression to select a specific hazard for each spawn point
+    System.Func<int, GameObject> selectHazard = (random) =>
     {
-        while (true) //Run indefinitely with a while (true) loop
+        // clamp so value stays within array
+        int clampedIndex = Mathf.Clamp(random, 0, hazardArray.Length - 1);
+
+        // Return the hazard!
+        return hazardArray[clampedIndex];
+    };
+
+    while (true)
+    {
+        spawnTimer += Time.deltaTime;
+        if (spawnTimer > timeBetweenSpawns)
         {
-            spawnTimer += Time.deltaTime;
-            if (spawnTimer > timeBetweenSpawns)
-            {
-                // reset spawn timer
-                spawnTimer = 0f;
+            // reset spawn timer
+            spawnTimer = 0f;
 
-                // set random and then choose a spawnPoint to spawn the hazard from
-                int random = Random.Range(0, 3);
+            // set random and then choose a spawnPoint to spawn the hazard from
+            int random = Random.Range(0, 3);
 
-                // Spawn em'
-                Instantiate(spawnObject, spawnPoints[random].transform.position, Quaternion.identity);
-            }
+            // Use the lambda expression to select the hazard
+            GameObject hazardToSpawn = selectHazard(random);
 
-            yield return null; //Give control to the unity engine
+            // Spawn em'
+            Instantiate(hazardToSpawn, spawnPoints[random].transform.position, Quaternion.identity);
         }
-    }
 
+        yield return null; // Give control to the unity engine
+    }
+}
     IEnumerator HitCheck()
     {
         while (true)

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3279653145297005431}
   - component: {fileID: 3279653145297005430}
   m_Layer: 0
-  m_Name: hazardObject
+  m_Name: hazardObjectTop
   m_TagString: Hazard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 11
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.53157943, g: 0.36311856, b: 0.9056604, a: 1}
+  m_Color: {r: 0.90588236, g: 0.6924233, b: 0.36470592, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
