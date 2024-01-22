@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     //This bool needs to stay public because this is what all scripts in the game use to check if the player was hit.
     //It's awful I know but I don't have time to rewrite that logic rn
     public bool wasHit = false;
+    public bool isGamePaused = false;
 
     private Coroutine spawnHazardsCoroutine;
     private Coroutine hitCheckCoroutine;
@@ -119,7 +120,7 @@ public class GameManager : MonoBehaviour
     // apply hazards to each spawnpoint
     GameObject[] hazardArray = new GameObject[] {spawnObject1, spawnObject2, spawnObject3}; 
 
-    // LAMBDA expression to select a specific hazard for each spawn point
+    // LAMBDA expression to select a specific hazard for each spawn point 
     System.Func<int, GameObject> selectHazard = (random) =>
     {
         // clamp so value stays within array
@@ -140,7 +141,7 @@ public class GameManager : MonoBehaviour
             // set random and then choose a spawnPoint to spawn the hazard from
             int random = Random.Range(0, 3);
 
-            // Use the lambda expression to select the hazard
+            // select the hazard
             GameObject hazardToSpawn = selectHazard(random);
 
             // Spawn em'
@@ -175,5 +176,42 @@ public class GameManager : MonoBehaviour
         score = Mathf.Max(0, score - amount);
         // Update GUI
         UpdateScoreText();
+    }
+
+     private void OnEnable()
+    {
+        // Subscribe to universal controller events
+        UniversalController.OnQuitGame += QuitGame;
+        UniversalController.OnTogglePause += TogglePause;
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from universal controller events
+        UniversalController.OnQuitGame -= QuitGame;
+        UniversalController.OnTogglePause -= TogglePause;
+    }
+
+    private void QuitGame()
+    {
+        Debug.Log("Quitting the game");
+        Application.Quit();
+    }
+
+    private void TogglePause()
+    {
+        //toggle the game pause bool
+        isGamePaused = !isGamePaused;
+        // TO DO: add UI to show pause
+        if (isGamePaused)
+        {
+            Time.timeScale = 0f; // Pause the game
+        }
+        else
+        {
+            Time.timeScale = 1f; // Resume the game
+        }
+
+        Debug.Log("Game " + (isGamePaused ? "Paused" : "Resumed"));
     }
 }
