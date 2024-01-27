@@ -23,7 +23,7 @@ public class UniversalController : MonoBehaviour
             OnQuitGame?.Invoke();
         }
 
-        // Ccheck for pause input
+        // check for pause input
         if (Input.GetKeyDown(KeyCode.P))
         {
             OnTogglePause?.Invoke();

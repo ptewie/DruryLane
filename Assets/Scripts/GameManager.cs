@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public enum GameState { TitleState, CreditsState, GameplayState, GameOverState, VictoryState }; //Game States
 
@@ -20,13 +21,17 @@ public class GameManager : MonoBehaviour
     public GameObject spawnObject3;
     public GameObject[] spawnPoints;
     public TextMeshProUGUI scoreText;
+    public GameObject GameOverPanel;
 
     public float spawnTimer = 0f; // Time in seconds 
     public float timeBetweenSpawns;
     public float spawnSpeedMultiplier;
     private float scoreTimer = 0f;
+    //private float hitTimer = 10f; 
 
     private int score = 0;
+    private int hits = 0;
+    private int maxHits = 3;
     //This bool needs to stay public because this is what all scripts in the game use to check if the player was hit.
     //It's awful I know but I don't have time to rewrite that logic rn
     public bool wasHit = false;
@@ -34,6 +39,7 @@ public class GameManager : MonoBehaviour
 
     private Coroutine spawnHazardsCoroutine;
     private Coroutine hitCheckCoroutine;
+    private Coroutine hitTimerCoroutine;
 
     void Awake()
     {
@@ -52,8 +58,15 @@ public class GameManager : MonoBehaviour
     {
         // On load, the game state is the title state
         // game state is set to gameplay state for debugging resons rn
-        ChangeGameState(GameState.GameplayState);
+        ChangeGameState(GameState.TitleState);
+        GameOverPanel.gameObject.SetActive(false);
 
+    }
+
+    public void StartGame()
+    {
+        ChangeGameState(GameState.GameplayState);
+        GameOverPanel.gameObject.SetActive(false);
     }
 
     void Update()
@@ -66,6 +79,8 @@ public class GameManager : MonoBehaviour
 
             // update the score timer
             UpdateScore();
+            
+            // Update hit timer
         }
     }
 
@@ -115,42 +130,43 @@ public class GameManager : MonoBehaviour
         }
     }
 
-   IEnumerator SpawnHazards()
-{
-    // apply hazards to each spawnpoint
-    GameObject[] hazardArray = new GameObject[] {spawnObject1, spawnObject2, spawnObject3}; 
-
-    // LAMBDA expression to select a specific hazard for each spawn point 
-    System.Func<int, GameObject> selectHazard = (random) =>
+    IEnumerator SpawnHazards()
     {
-        // clamp so value stays within array
-        int clampedIndex = Mathf.Clamp(random, 0, hazardArray.Length - 1);
+        // apply hazards to each spawnpoint
+        GameObject[] hazardArray = new GameObject[] {spawnObject1, spawnObject2, spawnObject3}; 
 
-        // Return the hazard!
-        return hazardArray[clampedIndex];
-    };
-
-    while (true)
-    {
-        spawnTimer += Time.deltaTime;
-        if (spawnTimer > timeBetweenSpawns)
+        // LAMBDA expression to select a specific hazard for each spawn point 
+        System.Func<int, GameObject> selectHazard = (random) =>
         {
-            // reset spawn timer
-            spawnTimer = 0f;
+            // clamp so value stays within array
+            int clampedIndex = Mathf.Clamp(random, 0, hazardArray.Length - 1);
 
-            // set random and then choose a spawnPoint to spawn the hazard from
-            int random = Random.Range(0, 3);
+            // Return the hazard!
+            return hazardArray[clampedIndex];
+        };
 
-            // select the hazard
-            GameObject hazardToSpawn = selectHazard(random);
+        while (true)
+        {
+            spawnTimer += Time.deltaTime;
+            if (spawnTimer > timeBetweenSpawns)
+            {
+                // reset spawn timer
+                spawnTimer = 0f;
 
-            // Spawn em'
-            Instantiate(hazardToSpawn, spawnPoints[random].transform.position, Quaternion.identity);
+                // set random and then choose a spawnPoint to spawn the hazard from
+                int random = Random.Range(0, 3);
+
+                // select the hazard
+                GameObject hazardToSpawn = selectHazard(random);
+
+                // Spawn em'
+                Instantiate(hazardToSpawn, spawnPoints[random].transform.position, Quaternion.identity);
+            }
+
+            yield return null; // Give control to the unity engine
         }
-
-        yield return null; // Give control to the unity engine
     }
-}
+
     IEnumerator HitCheck()
     {
         while (true)
@@ -158,16 +174,29 @@ public class GameManager : MonoBehaviour
             if (wasHit)
             {
                 Debug.Log("Hit check true!");
-                // When the player is hit, decrement the speed variable. 
-                spawnSpeedMultiplier = 0f;
 
-                // Remove 5 score from player 
-                DecreaseScore(5);
+                // Increase hit count
+                hits++;
+
+                // When the player is hit three times, trigger game over
+                if (hits >= maxHits)
+                {
+                    GameOver();
+                }
+                else
+                {
+                    // If the player is not yet hit three times, reset speed variable and score
+                    spawnSpeedMultiplier = 0f;
+                    DecreaseScore(5);
+                }
+                
+                // Reset the hit state after processing
+                wasHit = false;
             }
 
-            yield return null;
+        yield return null;
         }
-    }
+    }        
 
     public void DecreaseScore(int amount)
     {
@@ -178,7 +207,7 @@ public class GameManager : MonoBehaviour
         UpdateScoreText();
     }
 
-     private void OnEnable()
+    private void OnEnable()
     {
         // Subscribe to universal controller events
         UniversalController.OnQuitGame += QuitGame;
@@ -192,10 +221,21 @@ public class GameManager : MonoBehaviour
         UniversalController.OnTogglePause -= TogglePause;
     }
 
-    private void QuitGame()
+    public void QuitGame()
     {
         Debug.Log("Quitting the game");
         Application.Quit();
+    }
+
+    public void GameOver()
+    {
+        TogglePause();
+        ChangeGameState(GameState.GameOverState);
+        Debug.Log("game over!!");
+        GameOverPanel.gameObject.SetActive(true);
+
+
+
     }
 
     private void TogglePause()
