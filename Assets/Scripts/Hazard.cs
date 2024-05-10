@@ -7,6 +7,8 @@ public class Hazard : MonoBehaviour
     private Rigidbody2D rb;
     public float speed;
     private GameManager Manager;
+    public string hazardType;
+
     // Start is called before the first frame update
     void Start()
     {

@@ -180,15 +180,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SpawnHazard(GameObject hazardToSpawn, int spawnIndex)
+    public void SpawnHazard(GameObject hazardObjectToSpawn, int spawnIndex)
     {
         // going thru whole hazards pool to find first that's not active.
         // When we find that onject, line 190 is true so we use that object 
         // But, if we run thru the loop and don't find anything. we need to spawn more hazards. so we instaitate.
+
+        Hazard hazardToSpawn = hazardObjectToSpawn.GetComponent<Hazard>();
+
         foreach(Hazard hazard in hazardsPool)
         {
-            //if hazard is not in heirchy....
-            if(!hazard.gameObject.activeInHierarchy)
+            //if hazard is not active in heirarchy 
+            if(!hazard.gameObject.activeInHierarchy && hazardToSpawn.hazardType == hazard.hazardType)
             {
                 //move it to the location
                 hazard.gameObject.transform.position = spawnPoints[spawnIndex].transform.position;
@@ -202,7 +205,7 @@ public class GameManager : MonoBehaviour
             } 
 
         }
-        Instantiate(hazardToSpawn, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
+        Instantiate(hazardObjectToSpawn, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
     }
 
     IEnumerator HitCheck()
