@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
@@ -18,10 +19,14 @@ public class GameManager : MonoBehaviour
     private GameState previousGameState;
     public GameStateChangedEvent OnGameStateChanged = new GameStateChangedEvent();
 
+    //Hazard Variables
     public GameObject spawnObject1;
     public GameObject spawnObject2;
     public GameObject spawnObject3;
     public GameObject[] spawnPoints;
+
+    public List<Hazard> hazardsPool;
+
     public TextMeshProUGUI scoreText;
     public GameObject GameOverPanel;
 
@@ -64,6 +69,7 @@ public class GameManager : MonoBehaviour
         // game state is set to gameplay state for debugging resons rn
         ChangeGameState(GameState.TitleState);
         GameOverPanel.gameObject.SetActive(false);
+        //player.GetComponent<Health>().
         audioManager.PlayBGM();
 
 
@@ -167,11 +173,36 @@ public class GameManager : MonoBehaviour
                 GameObject hazardToSpawn = selectHazard(random);
 
                 // Spawn em'
-                Instantiate(hazardToSpawn, spawnPoints[random].transform.position, Quaternion.identity);
+                SpawnHazard(hazardToSpawn, random);
             }
 
             yield return null; // Give control to the unity engine
         }
+    }
+
+    public void SpawnHazard(GameObject hazardToSpawn, int spawnIndex)
+    {
+        // going thru whole hazards pool to find first that's not active.
+        // When we find that onject, line 190 is true so we use that object 
+        // But, if we run thru the loop and don't find anything. we need to spawn more hazards. so we instaitate.
+        foreach(Hazard hazard in hazardsPool)
+        {
+            //if hazard is not in heirchy....
+            if(!hazard.gameObject.activeInHierarchy)
+            {
+                //move it to the location
+                hazard.gameObject.transform.position = spawnPoints[spawnIndex].transform.position;
+
+                //set it's rotation!
+                hazard.gameObject.transform.rotation = spawnPoints[spawnIndex].transform.rotation;
+
+                //set it to active
+                hazard.gameObject.SetActive(true);
+                return;
+            } 
+
+        }
+        Instantiate(hazardToSpawn, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
     }
 
     IEnumerator HitCheck()

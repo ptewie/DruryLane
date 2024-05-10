@@ -12,6 +12,7 @@ public class Hazard : MonoBehaviour
     {
         // set rigidbody and game manager
         Manager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        Manager.hazardsPool.Add(this);
         rb = GetComponent<Rigidbody2D>();   
     }
 
@@ -32,8 +33,8 @@ public class Hazard : MonoBehaviour
             // TO DO: NOT FUCKING THIS. THIS GOES BETWEEN LIKE...... 3 SCRIPTS!!!!!
             Manager.wasHit = true;
 
-            // 
-            Destroy(this.gameObject);
+            //disable game object
+            this.gameObject.SetActive(false);
             
             
         }
