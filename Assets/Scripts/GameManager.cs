@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public GameObject GameOverPanel;
 
+    public AudioManager audioManager; // Reference to AudioManager
+
     public float spawnTimer = 0f; // Time in seconds 
     public float timeBetweenSpawns;
     public float spawnSpeedMultiplier;
@@ -60,6 +62,8 @@ public class GameManager : MonoBehaviour
         // game state is set to gameplay state for debugging resons rn
         ChangeGameState(GameState.TitleState);
         GameOverPanel.gameObject.SetActive(false);
+        
+        audioManager.PlayBGM();
 
     }
 
@@ -67,6 +71,7 @@ public class GameManager : MonoBehaviour
     {
         ChangeGameState(GameState.GameplayState);
         GameOverPanel.gameObject.SetActive(false);
+        audioManager.IncreasePitch(0.1f);
     }
 
     void Update()
