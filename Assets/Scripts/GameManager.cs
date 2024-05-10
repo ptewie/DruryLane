@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public PlayerController player;
+
     public GameState currentGameState;
     private GameState previousGameState;
     public GameStateChangedEvent OnGameStateChanged = new GameStateChangedEvent();
@@ -62,8 +64,8 @@ public class GameManager : MonoBehaviour
         // game state is set to gameplay state for debugging resons rn
         ChangeGameState(GameState.TitleState);
         GameOverPanel.gameObject.SetActive(false);
-        
         audioManager.PlayBGM();
+
 
     }
 

@@ -23,7 +23,7 @@ public class Hazard : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         // if you end up colliding with the player
         if (other.gameObject.CompareTag("Player"))
@@ -36,6 +36,15 @@ public class Hazard : MonoBehaviour
             Destroy(this.gameObject);
             
             
+        }
+
+        //TO DO: Kill plain object, check for tag, if overlaps disable. 
+
+        if (other.gameObject.CompareTag("KillPlane"))
+        {
+            //disable game object
+            this.gameObject.SetActive(false);
+            Debug.Log("bye bye silly hazard");
         }
     }
 }
