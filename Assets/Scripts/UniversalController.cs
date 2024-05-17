@@ -8,6 +8,9 @@ public class UniversalController : MonoBehaviour
     public delegate void UniversalAction();
     public static event UniversalAction OnQuitGame;
     public static event UniversalAction OnTogglePause;
+    public static event UniversalAction DebugHazardCheck;
+    public static event UniversalAction DebugHazardSort;
+    public static event UniversalAction DebugHazardTypeList;
 
     private void Update()
     {
@@ -27,6 +30,21 @@ public class UniversalController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             OnTogglePause?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+           DebugHazardCheck?.Invoke();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+           DebugHazardSort?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+           DebugHazardTypeList?.Invoke();
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public enum GameState { TitleState, CreditsState, GameplayState, GameOverState, VictoryState }; //Game States
 
@@ -15,11 +16,12 @@ public class GameManager : MonoBehaviour
 
     public PlayerController player;
 
+    [Header("Game State")]
     public GameState currentGameState;
     private GameState previousGameState;
     public GameStateChangedEvent OnGameStateChanged = new GameStateChangedEvent();
 
-    //Hazard Variables
+    [Header("Hazard Variables")]
     public GameObject spawnObject1;
     public GameObject spawnObject2;
     public GameObject spawnObject3;
@@ -27,24 +29,33 @@ public class GameManager : MonoBehaviour
 
     public List<Hazard> hazardsPool;
 
+    [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
     public GameObject GameOverPanel;
 
+    [Header("Audio")]
     public AudioManager audioManager; // Reference to AudioManager
 
-    public float spawnTimer = 0f; // Time in seconds 
+    [Header("Gameplay Settings")]
+    [Tooltip("Time in seconds between each spawn")]
+    [CustomSlider(0.1f, 5f)]
     public float timeBetweenSpawns;
+    [Tooltip("Multiplier for spawn speed")]
+    [CustomSlider(1f, 10f)]
     public float spawnSpeedMultiplier;
+
+    [HideInInspector]
+    public bool wasHit = false;
+    [HideInInspector]
+    public bool isGamePaused = false;
+
+    private float spawnTimer = 0f; // Time in seconds 
     private float scoreTimer = 0f;
     //private float hitTimer = 10f; 
 
     private int score = 0;
     private int hits = 0;
     private int maxHits = 3;
-    //This bool needs to stay public because this is what all scripts in the game use to check if the player was hit.
-    //It's awful I know but I don't have time to rewrite that logic rn
-    public bool wasHit = false;
-    public bool isGamePaused = false;
 
     private Coroutine spawnHazardsCoroutine;
     private Coroutine hitCheckCoroutine;
@@ -71,8 +82,6 @@ public class GameManager : MonoBehaviour
         GameOverPanel.gameObject.SetActive(false);
         //player.GetComponent<Health>().
         audioManager.PlayBGM();
-
-
     }
 
     public void StartGame()
@@ -92,8 +101,6 @@ public class GameManager : MonoBehaviour
 
             // update the score timer
             UpdateScore();
-            
-            // Update hit timer
         }
     }
 
@@ -146,7 +153,7 @@ public class GameManager : MonoBehaviour
     IEnumerator SpawnHazards()
     {
         // apply hazards to each spawnpoint
-        GameObject[] hazardArray = new GameObject[] {spawnObject1, spawnObject2, spawnObject3}; 
+        GameObject[] hazardArray = new GameObject[] { spawnObject1, spawnObject2, spawnObject3 }; 
 
         // LAMBDA expression to select a specific hazard for each spawn point 
         System.Func<int, GameObject> selectHazard = (random) =>
@@ -188,10 +195,10 @@ public class GameManager : MonoBehaviour
 
         Hazard hazardToSpawn = hazardObjectToSpawn.GetComponent<Hazard>();
 
-        foreach(Hazard hazard in hazardsPool)
+        foreach (Hazard hazard in hazardsPool)
         {
             //if hazard is not active in heirarchy 
-            if(!hazard.gameObject.activeInHierarchy && hazardToSpawn.hazardType == hazard.hazardType)
+            if (!hazard.gameObject.activeInHierarchy && hazardToSpawn.hazardType == hazard.hazardType)
             {
                 //move it to the location
                 hazard.gameObject.transform.position = spawnPoints[spawnIndex].transform.position;
@@ -202,8 +209,7 @@ public class GameManager : MonoBehaviour
                 //set it to active
                 hazard.gameObject.SetActive(true);
                 return;
-            } 
-
+            }
         }
         Instantiate(hazardObjectToSpawn, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
     }
@@ -230,14 +236,14 @@ public class GameManager : MonoBehaviour
                     spawnSpeedMultiplier = 0f;
                     DecreaseScore(5);
                 }
-                
+
                 // Reset the hit state after processing
                 wasHit = false;
             }
 
-        yield return null;
+            yield return null;
         }
-    }        
+    }
 
     public void DecreaseScore(int amount)
     {
@@ -253,6 +259,9 @@ public class GameManager : MonoBehaviour
         // Subscribe to universal controller events
         UniversalController.OnQuitGame += QuitGame;
         UniversalController.OnTogglePause += TogglePause;
+        UniversalController.DebugHazardCheck += DebugHazardsStatus;
+        UniversalController.DebugHazardSort += DebugSortHazardsByType;
+        UniversalController.DebugHazardTypeList += DebugListHazardTypes;
     }
 
     private void OnDisable()
@@ -274,9 +283,6 @@ public class GameManager : MonoBehaviour
         ChangeGameState(GameState.GameOverState);
         Debug.Log("game over!!");
         GameOverPanel.gameObject.SetActive(true);
-
-
-
     }
 
     private void TogglePause()
@@ -294,5 +300,47 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("Game " + (isGamePaused ? "Paused" : "Resumed"));
+    }
+
+    public void DebugHazardsStatus()
+    {
+        var activeHazards = hazardsPool.Where(hazard => hazard.gameObject.activeInHierarchy).ToList();
+        var inactiveHazards = hazardsPool.Where(hazard => !hazard.gameObject.activeInHierarchy).ToList();
+
+        foreach (var hazard in activeHazards)
+        {
+            Debug.Log("Active:" + hazard.gameObject.name);
+        }
+
+        foreach (var hazard in inactiveHazards)
+        {
+            Debug.Log("Inactive:" + hazard.gameObject.name);
+        }
+    }
+
+    public void DebugSortHazardsByType()
+    {
+        // Sort hazards by hazard type
+        var sortedHazards = hazardsPool.OrderBy(hazard => hazard.hazardType).ToList();
+
+        // Print sorted hazards in debug log
+        Debug.Log("Sorted Hazards by Type.");
+        foreach (var hazard in sortedHazards)
+        {
+            Debug.Log("Hazard Name: " + hazard.gameObject.name + ", Hazard Type: " + hazard.hazardType);
+        }
+    }
+
+    public void DebugListHazardTypes()
+    {
+        // Find distinct hazard types
+        var distinctHazardTypes = hazardsPool.Select(hazard => hazard.hazardType).Distinct().ToList();
+
+        // Print distinct hazard types in debug log
+        Debug.Log("Hazard Types:");
+        foreach (var hazardType in distinctHazardTypes)
+        {
+            Debug.Log(hazardType);
+        }
     }
 }

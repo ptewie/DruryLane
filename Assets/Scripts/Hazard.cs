@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Hazard : MonoBehaviour
+public class Hazard : MonoBehaviour, IKillable
 {
     private Rigidbody2D rb;
     public float speed;
@@ -26,6 +26,11 @@ public class Hazard : MonoBehaviour
         
     }
 
+    public void Die()
+    {
+        gameObject.SetActive(false); 
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // if you end up colliding with the player
@@ -36,7 +41,7 @@ public class Hazard : MonoBehaviour
             Manager.wasHit = true;
 
             //disable game object
-            this.gameObject.SetActive(false);
+            Die();
             
             
         }
@@ -46,8 +51,9 @@ public class Hazard : MonoBehaviour
         if (other.gameObject.CompareTag("KillPlane"))
         {
             //disable game object
-            this.gameObject.SetActive(false);
+            Die();
             Debug.Log("bye bye silly hazard");
         }
     }
+
 }
