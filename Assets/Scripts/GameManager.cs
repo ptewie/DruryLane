@@ -131,6 +131,18 @@ public class GameManager : MonoBehaviour
 
     public void ChangeGameState(GameState state)
     {
+        SetCurrentGameState(state);
+    }
+
+    // Getter for current game state
+    public GameState CurrentGameState
+    {
+        get { return currentGameState; }
+    }
+
+    // Setter for current game state
+    public void SetCurrentGameState(GameState state)
+    {
         previousGameState = currentGameState;
         currentGameState = state;
         OnGameStateChanged.Invoke(previousGameState, currentGameState);
@@ -153,20 +165,20 @@ public class GameManager : MonoBehaviour
     }
 
     private HazardData GetRandomHazardData()
-{
-    // Check if there are any hazard data available
-    if (hazardDataList.Count == 0)
     {
-        Debug.LogError("No hazard data available.");
-        return null;
+        // Check if there are any hazard data available
+        if (hazardDataList.Count == 0)
+        {
+            Debug.LogError("No hazard data available.");
+            return null;
+        }
+
+        // Get a random index within the range of hazard data list
+        int randomIndex = Random.Range(0, hazardDataList.Count);
+
+        // Return the hazard data at the random index
+        return hazardDataList[randomIndex];
     }
-
-    // Get a random index within the range of hazard data list
-    int randomIndex = Random.Range(0, hazardDataList.Count);
-
-    // Return the hazard data at the random index
-    return hazardDataList[randomIndex];
-}
 
     IEnumerator SpawnHazards()
     {
@@ -204,8 +216,6 @@ public class GameManager : MonoBehaviour
             yield return null; // Give control to the unity engine
         }
     }
-
-    
 
     public void SpawnHazard(HazardData hazardDataToSpawn, int spawnIndex)
     {
