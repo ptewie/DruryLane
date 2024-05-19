@@ -1,0 +1,24 @@
+[33mcf35cbf[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m HEAD@{0}: commit: Attrivutes and peoperty drawer and Killable Interface
+[33m6cd5980[m HEAD@{1}: commit: Object Pooling finished
+[33m2d1eb95[m HEAD@{2}: commit: Object Pooling for Spawn
+[33m53edcde[m HEAD@{3}: commit: Added KillPlane for CHazards
+[33m76a3352[m HEAD@{4}: commit: Auduio add
+[33m73c3109[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{5}: checkout: moving from main to develop
+[33m73c3109[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{6}: commit: FInal commit
+[33meb5dbcb[m HEAD@{7}: commit: Universal Controller (Quit and Pause)
+[33mccc6396[m HEAD@{8}: commit: Monster run animation implemented
+[33m79a8b7f[m HEAD@{9}: commit: SpawnHazards() edit to apply certian hazards to each checkpoint
+[33m4e6dbab[m HEAD@{10}: commit: Refactored game manager to work in all scenes
+[33m57c798f[m HEAD@{11}: commit: Starting UI
+[33m3cde4fe[m HEAD@{12}: commit: Transfer UI Manager and GameState template
+[33m9e42a37[m HEAD@{13}: commit: GameManager refactoring and scoreText UII logic
+[33m8e87ace[m HEAD@{14}: commit: Added UI Canvas to main scene. Fixed HitCheckbug
+[33mbb9fe16[m HEAD@{15}: commit: I think this was prefabs?
+[33mf0cf17e[m HEAD@{16}: commit: Added prefabs and created camera delay when hit
+[33m47463c4[m HEAD@{17}: commit: Scrolling background fix. Start of on player hit events
+[33m4680a89[m HEAD@{18}: commit: GameManger (Spawnlogic and starting paralax movement.)
+[33m9f0c2c4[m HEAD@{19}: commit: Spawn points and hazards implemented
+[33mca8d955[m HEAD@{20}: commit: Floor and Player intial
+[33m1f56007[m HEAD@{21}: commit: Parallax Background
+[33mf597aac[m HEAD@{22}: commit: Project Import
+[33m241d62b[m HEAD@{23}: clone: from https://github.com/ptewie/DruryLane.git

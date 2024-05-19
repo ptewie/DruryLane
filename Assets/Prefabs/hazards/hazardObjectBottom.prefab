@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3279653145297005424}
   - component: {fileID: 3279653145297005431}
   - component: {fileID: 3279653145297005430}
+  - component: {fileID: 6150405987503500279}
   m_Layer: 0
   m_Name: hazardObjectBottom
   m_TagString: Hazard
@@ -138,3 +139,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   hazardType: Bottom
+--- !u!114 &6150405987503500279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3279653145297005429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4a28704af68bc547accfe998b0aa0d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hazardData: {fileID: 11400000, guid: 69097deac5a18804192535ab8484fb0b, type: 2}

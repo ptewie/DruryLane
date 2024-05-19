@@ -24,10 +24,12 @@ public class GameManager : MonoBehaviour
     [Header("Hazard Variables")]
     public GameObject spawnObject1;
     public GameObject spawnObject2;
-    public GameObject spawnObject3;
+    //public GameObject spawnObject3;
     public GameObject[] spawnPoints;
 
     public List<Hazard> hazardsPool;
+    
+    public List<HazardData> hazardDataList;
 
     [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
@@ -150,16 +152,32 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private HazardData GetRandomHazardData()
+{
+    // Check if there are any hazard data available
+    if (hazardDataList.Count == 0)
+    {
+        Debug.LogError("No hazard data available.");
+        return null;
+    }
+
+    // Get a random index within the range of hazard data list
+    int randomIndex = Random.Range(0, hazardDataList.Count);
+
+    // Return the hazard data at the random index
+    return hazardDataList[randomIndex];
+}
+
     IEnumerator SpawnHazards()
     {
         // apply hazards to each spawnpoint
-        GameObject[] hazardArray = new GameObject[] { spawnObject1, spawnObject2, spawnObject3 }; 
+        GameObject[] hazardArray = new GameObject[] { spawnObject1, spawnObject2}; 
 
         // LAMBDA expression to select a specific hazard for each spawn point 
         System.Func<int, GameObject> selectHazard = (random) =>
         {
             // clamp so value stays within array
-            int clampedIndex = Mathf.Clamp(random, 0, hazardArray.Length - 1);
+           int clampedIndex = Mathf.Clamp(random, 0, hazardArray.Length - 1);
 
             // Return the hazard!
             return hazardArray[clampedIndex];
@@ -177,41 +195,65 @@ public class GameManager : MonoBehaviour
                 int random = Random.Range(0, 3);
 
                 // select the hazard
-                GameObject hazardToSpawn = selectHazard(random);
+                HazardData hazardDataToSpawn = GetRandomHazardData();
 
                 // Spawn em'
-                SpawnHazard(hazardToSpawn, random);
+                SpawnHazard(hazardDataToSpawn, random);
             }
 
             yield return null; // Give control to the unity engine
         }
     }
 
-    public void SpawnHazard(GameObject hazardObjectToSpawn, int spawnIndex)
+    
+
+    public void SpawnHazard(HazardData hazardDataToSpawn, int spawnIndex)
     {
         // going thru whole hazards pool to find first that's not active.
         // When we find that onject, line 190 is true so we use that object 
         // But, if we run thru the loop and don't find anything. we need to spawn more hazards. so we instaitate.
 
-        Hazard hazardToSpawn = hazardObjectToSpawn.GetComponent<Hazard>();
+        //Hazard hazardToSpawn = hazardObjectToSpawn.GetComponent<Hazard>();
 
         foreach (Hazard hazard in hazardsPool)
         {
             //if hazard is not active in heirarchy 
-            if (!hazard.gameObject.activeInHierarchy && hazardToSpawn.hazardType == hazard.hazardType)
+            //if (!hazard.gameObject.activeInHierarchy && hazardToSpawn.hazardType == hazard.hazardType)
+            if (!hazard.gameObject.activeInHierarchy)
             {
                 //move it to the location
                 hazard.gameObject.transform.position = spawnPoints[spawnIndex].transform.position;
 
                 //set it's rotation!
                 hazard.gameObject.transform.rotation = spawnPoints[spawnIndex].transform.rotation;
+                
+                HazardProperties hazardProperties = hazard.gameObject.GetComponent<HazardProperties>();
+                
+                if (hazardProperties != null)
+                {
+                    hazardProperties.hazardData = hazardDataToSpawn;
+                }
 
                 //set it to active
                 hazard.gameObject.SetActive(true);
                 return;
             }
         }
-        Instantiate(hazardObjectToSpawn, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
+        // If there are no inactive hazards in the pool, instantiate a new hazard object
+        GameObject newHazard = Instantiate(spawnObject1, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
+        hazardsPool.Add(newHazard.GetComponent<Hazard>());
+
+        // Set properties of the newly instantiated hazard object
+        newHazard.transform.position = spawnPoints[spawnIndex].transform.position;
+        newHazard.transform.rotation = spawnPoints[spawnIndex].transform.rotation;
+
+        HazardProperties newHazardProperties = newHazard.GetComponent<HazardProperties>();
+        if (newHazardProperties != null)
+        {   
+            newHazardProperties.hazardData = hazardDataToSpawn;
+        }
+
+    newHazard.SetActive(true);
     }
 
     IEnumerator HitCheck()
@@ -259,9 +301,9 @@ public class GameManager : MonoBehaviour
         // Subscribe to universal controller events
         UniversalController.OnQuitGame += QuitGame;
         UniversalController.OnTogglePause += TogglePause;
-        UniversalController.DebugHazardCheck += DebugHazardsStatus;
-        UniversalController.DebugHazardSort += DebugSortHazardsByType;
-        UniversalController.DebugHazardTypeList += DebugListHazardTypes;
+        //UniversalController.DebugHazardCheck += DebugHazardsStatus;
+        //UniversalController.DebugHazardSort += DebugSortHazardsByType;
+        //UniversalController.DebugHazardTypeList += DebugListHazardTypes;
     }
 
     private void OnDisable()
@@ -301,46 +343,52 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Game " + (isGamePaused ? "Paused" : "Resumed"));
     }
-
-    public void DebugHazardsStatus()
+} 
+namespace DebugTools
+{
+    public static class DebugManager
     {
-        var activeHazards = hazardsPool.Where(hazard => hazard.gameObject.activeInHierarchy).ToList();
-        var inactiveHazards = hazardsPool.Where(hazard => !hazard.gameObject.activeInHierarchy).ToList();
-
-        foreach (var hazard in activeHazards)
+        
+        public static void DebugHazardsStatus(List<Hazard> hazardsPool)
         {
-            Debug.Log("Active:" + hazard.gameObject.name);
+            var activeHazards = hazardsPool.Where(hazard => hazard.gameObject.activeInHierarchy).ToList();
+            var inactiveHazards = hazardsPool.Where(hazard => !hazard.gameObject.activeInHierarchy).ToList();
+
+            foreach (var hazard in activeHazards)
+            {
+                Debug.Log("Active:" + hazard.gameObject.name);
+            }
+
+            foreach (var hazard in inactiveHazards)
+            {
+                Debug.Log("Inactive:" + hazard.gameObject.name);
+            }
         }
 
-        foreach (var hazard in inactiveHazards)
+        public static void DebugSortHazardsByType(List<Hazard> hazardsPool)
         {
-            Debug.Log("Inactive:" + hazard.gameObject.name);
+            // Sort hazards by hazard type
+            var sortedHazards = hazardsPool.OrderBy(hazard => hazard.hazardType).ToList();
+
+            // Print sorted hazards in debug log
+            Debug.Log("Sorted Hazards by Type.");
+            foreach (var hazard in sortedHazards)
+            {
+                Debug.Log("Hazard Name: " + hazard.gameObject.name + ", Hazard Type: " + hazard.hazardType);
+            }
         }
-    }
 
-    public void DebugSortHazardsByType()
-    {
-        // Sort hazards by hazard type
-        var sortedHazards = hazardsPool.OrderBy(hazard => hazard.hazardType).ToList();
-
-        // Print sorted hazards in debug log
-        Debug.Log("Sorted Hazards by Type.");
-        foreach (var hazard in sortedHazards)
+        public static void DebugListHazardTypes(List<Hazard> hazardsPool)
         {
-            Debug.Log("Hazard Name: " + hazard.gameObject.name + ", Hazard Type: " + hazard.hazardType);
-        }
-    }
+            // Find distinct hazard types
+            var distinctHazardTypes = hazardsPool.Select(hazard => hazard.hazardType).Distinct().ToList();
 
-    public void DebugListHazardTypes()
-    {
-        // Find distinct hazard types
-        var distinctHazardTypes = hazardsPool.Select(hazard => hazard.hazardType).Distinct().ToList();
-
-        // Print distinct hazard types in debug log
-        Debug.Log("Hazard Types:");
-        foreach (var hazardType in distinctHazardTypes)
-        {
-            Debug.Log(hazardType);
+            // Print distinct hazard types in debug log
+            Debug.Log("Hazard Types:");
+            foreach (var hazardType in distinctHazardTypes)
+            {
+                Debug.Log(hazardType);
+            }
         }
     }
 }
